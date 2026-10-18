@@ -2,6 +2,7 @@
   "expo": {
     "name": "SyncedPlatform",
     "slug": "synced-platform",
+    "owner": "vargavmishras-team",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
