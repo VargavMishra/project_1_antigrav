@@ -13,6 +13,7 @@
     "dev:server": "npm run dev --workspace=apps/server",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:mobile": "npm run start --workspace=apps/mobile",
+    "qr": "npm run qr --workspace=apps/mobile",
     "build": "npm run build --workspace=apps/server && npm run build --workspace=apps/web",
     "build:server": "npm run build --workspace=apps/server",
     "build:web": "npm run build --workspace=apps/web",
@@ -37,6 +38,7 @@
   "author": "Vargav Mishra <vargavmishra2002@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "node-forge": "^1.4.0"
   }
 }
