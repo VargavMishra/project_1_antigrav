@@ -17,7 +17,7 @@ import { WebView } from 'react-native-webview';
 
 // Default URL: Configurable via EXPO_PUBLIC_WEB_URL environment variable,
 // or fallback to local network or deployed website
-const DEFAULT_URL = process.env.EXPO_PUBLIC_WEB_URL || 'http://10.0.2.2:5173';
+const DEFAULT_URL = process.env.EXPO_PUBLIC_WEB_URL || 'http://10.34.240.163:5173';
 
 export default function App() {
   const [currentUrl, setCurrentUrl] = useState(DEFAULT_URL);

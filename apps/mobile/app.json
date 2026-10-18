@@ -26,6 +26,11 @@
         "android.permission.ACCESS_NETWORK_STATE"
       ]
     },
-    "plugins": []
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "cc4d6064-0d2a-4ab7-88c1-b8f9404132d3"
+      }
+    }
   }
 }

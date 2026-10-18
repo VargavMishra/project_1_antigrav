@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "SyncedPlatform",
+    "slug": "synced-platform",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./apps/mobile/assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./apps/mobile/assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./apps/mobile/assets/adaptive-icon.png",
+        "backgroundColor": "#0f172a"
+      },
+      "package": "com.rentorzo.syncedplatform",
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "cc4d6064-0d2a-4ab7-88c1-b8f9404132d3"
+      }
+    }
+  }
+}
