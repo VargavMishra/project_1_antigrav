@@ -1,0 +1,42 @@
+{
+  "name": "fullstack-shared-system",
+  "version": "1.0.0",
+  "description": "Production-grade shared website, mobile WebView app, backend API, Supabase database, and auth system",
+  "private": true,
+  "workspaces": [
+    "apps/server",
+    "apps/web",
+    "apps/mobile"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=apps/server\" \"npm run dev --workspace=apps/web\"",
+    "dev:server": "npm run dev --workspace=apps/server",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:mobile": "npm run start --workspace=apps/mobile",
+    "build": "npm run build --workspace=apps/server && npm run build --workspace=apps/web",
+    "build:server": "npm run build --workspace=apps/server",
+    "build:web": "npm run build --workspace=apps/web",
+    "test": "npm run test --workspace=apps/server",
+    "lint": "npm run lint --workspace=apps/server && npm run lint --workspace=apps/web",
+    "typecheck": "npm run typecheck --workspace=apps/server && npm run typecheck --workspace=apps/web"
+  },
+  "keywords": [
+    "fullstack",
+    "react",
+    "react-native",
+    "expo",
+    "webview",
+    "express",
+    "typescript",
+    "supabase",
+    "postgresql",
+    "zod",
+    "swagger",
+    "vitest"
+  ],
+  "author": "Vargav Mishra <vargavmishra2002@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
