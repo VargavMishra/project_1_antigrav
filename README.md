@@ -2,7 +2,7 @@
 
 > **A complete, remotely deployed full-stack platform demonstrating seamless cross-client synchronization between a React Website, an Android APK WebView, a shared Express TypeScript API, and a Supabase PostgreSQL database with triggers and RLS.**
 
-[![CI Pipeline](https://github.com/Rentorzo/valiant-bose/actions/workflows/ci.yml/badge.svg)](https://github.com/Rentorzo/valiant-bose/actions)
+[![CI Pipeline](https://github.com/VargavMishra/project_1_antigrav/actions/workflows/ci.yml/badge.svg)](https://github.com/VargavMishra/project_1_antigrav/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-cyan.svg)](https://react.dev/)
 [![React Native Expo](https://img.shields.io/badge/Expo-SDK%2052-black.svg)](https://expo.dev/)
@@ -139,8 +139,8 @@ valiant-bose/
 ### Installation Steps
 ```powershell
 # 1. Clone the repository
-git clone https://github.com/Rentorzo/valiant-bose.git
-cd valiant-bose
+git clone https://github.com/VargavMishra/project_1_antigrav.git
+cd project_1_antigrav
 
 # 2. Install all dependencies across workspaces
 npm install
