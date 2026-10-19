@@ -5,10 +5,7 @@ import { AppError } from '../../middleware/error.middleware.js';
 /**
  * Profile Repository (Data Access Layer)
  * 
- * DESIGN PRINCIPLE: Separation of Concerns
- * The repository is the ONLY place in the backend that speaks directly to the database.
- * If we ever switch from Supabase to raw PostgreSQL with pg-promise, Prisma, or Drizzle,
- * only this file needs to change. The controller and service logic remain completely untouched.
+ * Handles all database communication with PostgreSQL via Supabase.
  */
 export class ProfileRepository {
   /**
@@ -30,12 +27,12 @@ export class ProfileRepository {
   }
 
   /**
-   * Insert a new profile record (used during registration or lazy initialization)
+   * Insert a new profile record
    */
   async create(profile: Partial<ProfileRecord> & { id: string }): Promise<ProfileRecord> {
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .insert([profile])
+      .upsert([profile])
       .select()
       .single();
 
@@ -48,14 +45,13 @@ export class ProfileRepository {
   }
 
   /**
-   * Update an existing profile record
-   * Note: The updated_at column is handled automatically by our PostgreSQL trigger!
+   * Update or upsert a profile record.
+   * PostgreSQL trigger handles updated_at automatically!
    */
   async update(userId: string, updates: UpdateProfileInput): Promise<ProfileRecord> {
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .update(updates)
-      .eq('id', userId)
+      .upsert({ id: userId, ...updates })
       .select()
       .single();
 
@@ -80,7 +76,7 @@ export class ProfileRepository {
 
     if (error) {
       console.error(`[ProfileRepository.getAuditLogs] DB Error for user ${userId}:`, error);
-      return []; // Non-fatal for the profile UI
+      return [];
     }
 
     return data || [];

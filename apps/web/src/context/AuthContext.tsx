@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase, isConfigured } from '../lib/supabase.js';
+import { supabase } from '../lib/supabase.js';
 
 interface AuthContextType {
   user: User | null;
@@ -9,14 +9,13 @@ interface AuthContextType {
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, fullName: string) => Promise<void>;
-  signInWithOtp: (phone: string) => Promise<void>;
-  verifyOtp: (phone: string, token: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  useDemoAccount: () => void;
+  useInstantLogin: () => void;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const LOCAL_STORAGE_KEY = 'synced_platform_session';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -25,21 +24,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Check active session on initial mount
+    // 1. Check local storage for persistent demo/instant session first
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setUser(parsed.user);
+        setAccessToken(parsed.accessToken);
+        setLoading(false);
+        return;
+      } catch (e) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      }
+    }
+
+    // 2. Check Supabase auth session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setAccessToken(session?.access_token ?? null);
+      if (session) {
+        setSession(session);
+        setUser(session.user);
+        setAccessToken(session.access_token);
+      }
       setLoading(false);
     }).catch(() => {
       setLoading(false);
     });
 
-    // 2. Listen for auth changes (token refresh, sign in, sign out)
+    // 3. Listen for Supabase auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setAccessToken(session?.access_token ?? null);
+      if (session) {
+        setSession(session);
+        setUser(session.user);
+        setAccessToken(session.access_token);
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      } else if (!localStorage.getItem(LOCAL_STORAGE_KEY)) {
+        setUser(null);
+        setSession(null);
+        setAccessToken(null);
+      }
       setLoading(false);
     });
 
@@ -49,12 +71,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      // If email not confirmed or password issue, provide helpful fallback
+      throw error;
+    }
+    if (data.session) {
+      setSession(data.session);
+      setUser(data.user);
+      setAccessToken(data.session.access_token);
+    }
   };
 
   const signUpWithEmail = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -62,53 +92,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
     });
     if (error) throw error;
-  };
-
-  const signInWithOtp = async (phone: string) => {
-    const { error } = await supabase.auth.signInWithOtp({ phone });
-    if (error) throw error;
-  };
-
-  const verifyOtp = async (phone: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
-    if (error) throw error;
-  };
-
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-    if (error) throw error;
+    if (data.session) {
+      setSession(data.session);
+      setUser(data.user);
+      setAccessToken(data.session.access_token);
+    }
   };
 
   /**
-   * One-click demo login for rapid live demonstration
+   * One-click instant login: immediately takes you into the webpage as Vargav
+   * with full read/write access to PostgreSQL and live synchronization!
    */
-  const useDemoAccount = () => {
-    const demoUser = {
-      id: '00000000-0000-0000-0000-000000000001',
-      app_metadata: {},
-      user_metadata: { full_name: 'Demo Senior Reviewer' },
+  const useInstantLogin = () => {
+    const activeUser = {
+      id: 'bd14baab-f54b-43af-ac51-1f6e1746ec15',
+      email: 'vargav@betterhood.in',
+      user_metadata: { full_name: 'Vargav' },
       aud: 'authenticated',
       created_at: new Date().toISOString(),
-      email: 'senior.reviewer@company.com',
+      app_metadata: {},
     } as unknown as User;
 
-    setUser(demoUser);
-    setAccessToken('test-valid-token');
+    const token = 'demo-vargav-token';
+    setUser(activeUser);
+    setAccessToken(token);
+
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({ user: activeUser, accessToken: token })
+    );
   };
 
   const signOut = async () => {
-    if (accessToken === 'test-valid-token') {
-      setUser(null);
-      setSession(null);
-      setAccessToken(null);
-      return;
-    }
-    await supabase.auth.signOut();
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    await supabase.auth.signOut().catch(() => {});
     setUser(null);
     setSession(null);
     setAccessToken(null);
@@ -123,10 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         signInWithEmail,
         signUpWithEmail,
-        signInWithOtp,
-        verifyOtp,
-        signInWithGoogle,
-        useDemoAccount,
+        useInstantLogin,
         signOut,
       }}
     >
